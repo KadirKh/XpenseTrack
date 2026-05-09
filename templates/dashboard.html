@@ -27,6 +27,7 @@
     <!-- Add Income Form -->
     <h4 class="text-light mt-4">Add Income</h4>
     <form action="{{ url_for('add_income') }}" method="POST" class="row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="col-md-3">
             <input type="date" class="form-control" name="date" required>
         </div>
@@ -44,6 +45,7 @@
     <!-- Add Expense Form -->
     <h4 class="text-light mt-4">Add Expense</h4>
     <form action="{{ url_for('add_expense') }}" method="POST" class="row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="col-md-2">
             <input type="date" class="form-control" name="date" required>
         </div>

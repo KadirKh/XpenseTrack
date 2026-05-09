@@ -2,6 +2,29 @@
 
 A comprehensive personal expense and income tracking web application built with Flask. XpenseTrack helps users manage their finances by tracking expenses, income, and maintaining a detailed history of their transactions.
 
+## Quick Start
+
+```bash
+# 1. Clone and navigate to project
+cd XpenseTrack
+
+# 2. Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # macOS/Linux
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Create .env file with your MySQL credentials
+# (See "Configure Environment Variables" section below)
+
+# 5. Run the application
+python run.py
+```
+
+Open http://localhost:5000 in your browser.
+
 ## Features
 
 - **User Authentication**: Secure signup and login system with password hashing
@@ -18,94 +41,155 @@ A comprehensive personal expense and income tracking web application built with 
 ## Tech Stack
 
 ### Backend
-- **Framework**: Flask 3.1.0
-- **Database**: MySQL
-- **ORM**: SQLAlchemy 2.0.38
-- **Database Driver**: PyMySQL 1.1.1
-- **Authentication**: Flask-Login 0.6.3
+- **Framework**: Flask 3.1.0 - Lightweight Python web framework
+- **Database**: MySQL 8.0+ - Relational database management system
+- **ORM**: SQLAlchemy 2.0.38 - Object-Relational Mapping layer
+- **Database Driver**: PyMySQL 1.1.1 - Pure Python MySQL client
+- **Authentication**: Flask-Login 0.6.3 - User session management
+- **CSRF Protection**: Flask-WTF 1.2.1 - Cross-Site Request Forgery protection
+- **Password Hashing**: Werkzeug 3.1.3 - Security utilities including password hashing
+- **XSS Prevention**: Bleach 6.1.0 - HTML sanitization library
 
 ### Frontend
-- **Templating**: Jinja2
-- **Styling**: CSS
+- **Templating Engine**: Jinja2 - Template rendering for dynamic HTML
+- **Styling**: CSS3 - Responsive design with custom stylesheets
+- **Form Handling**: HTML5 forms with CSRF token protection
 
-### Security
-- **Password Hashing**: Werkzeug 3.1.3
-- **Session Management**: Flask-Login
+### Development Tools
+- **Environment Management**: python-dotenv 1.0.0 - Load environment variables from .env
+- **Logging**: Python built-in logging module - Application event logging
 
 ## Project Structure
 
 ```
 XpenseTrack/
-├── XpenseTrack.py          # Main application file
-├── requirements.txt        # Project dependencies
-├── README.md              # This file
+├── run.py                      # Application entry point
+├── config.py                   # Configuration management (Dev/Prod/Test)
+├── requirements.txt            # Project dependencies
+├── .env                        # Environment variables (create this file)
+├── README.md                   # This file
 │
-├── static/                # Static files
-│   ├── dashboard.css      # Dashboard styling
-│   ├── login.css          # Login page styling
-│   ├── styles.css         # General styling
-│   └── profile_pics/      # User profile pictures (auto-created)
+├── app/                        # Main application package
+│   ├── __init__.py            # Flask app factory (create_app)
+│   ├── models.py              # SQLAlchemy models (User, Transaction)
+│   └── routes.py              # All route handlers (register_routes)
 │
-├── templates/             # HTML templates
-│   ├── base.html          # Base template
-│   ├── index.html         # Signup page
-│   ├── login.html         # Login page
-│   ├── dashboard.html     # Main dashboard
-│   ├── profile.html       # User profile page
-│   ├── edit_profile.html  # Edit profile page
-│   ├── change_password.html # Change password page
-│   └── edit_expense.html  # Edit expense page
+├── static/                     # Static files
+│   ├── dashboard.css          # Dashboard styling
+│   ├── login.css              # Login page styling
+│   ├── styles.css             # General application styling
+│   └── profile_pics/          # User profile pictures (auto-created)
 │
-└── Favicon/               # Favicon and manifest files
+├── templates/                  # Jinja2 HTML templates
+│   ├── base.html              # Base template (navigation, footer)
+│   ├── index.html             # Signup page
+│   ├── login.html             # Login page
+│   ├── dashboard.html         # Main dashboard with transaction forms
+│   ├── profile.html           # User profile page
+│   ├── edit_profile.html      # Profile editing and image upload
+│   ├── change_password.html   # Password change form
+│   └── edit_expense.html      # Expense editing page
+│
+├── Favicon/                    # Favicon and manifest files
+│   ├── about.txt
+│   └── site.webmanifest
+│
+└── logs/                       # Application logs (auto-created)
+    └── app.log                # Debug and error logs
 ```
+
+### Key Files Explained
+- **run.py**: Entry point that creates the Flask app and starts the development server
+- **app/__init__.py**: Application factory that configures Flask, database, login manager, and routes
+- **app/models.py**: SQLAlchemy ORM models for User and Transaction tables
+- **app/routes.py**: All HTTP route handlers wrapped in `register_routes(app)` function
+- **config.py**: Configuration classes for different environments (development, production, testing)
 
 ## Installation
 
 ### Prerequisites
-- Python 3.x
-- MySQL Server running locally
+- Python 3.8 or higher
+- MySQL Server 8.0+ running on `localhost:3306`
 - pip (Python package manager)
 
 ### Setup Steps
 
-1. **Clone or download the project**
-   ```bash
-   cd XpenseTrack
-   ```
+#### 1. Clone or Download the Project
+```bash
+cd XpenseTrack
+```
 
-2. **Create a virtual environment** (recommended)
-   ```bash
-   python -m venv venv
-   # On Windows
-   venv\Scripts\activate
-   # On macOS/Linux
-   source venv/bin/activate
-   ```
+#### 2. Create a Virtual Environment (recommended)
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+# macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+```
 
-4. **Configure Database**
-   - Ensure MySQL is running on your local machine
-   - Create a database named `xpensetrack`
-   - The application will automatically create the required tables
+#### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-   Modify the database configuration in `XpenseTrack.py`:
-   ```python
-   password = quote_plus("your_mysql_password")
-   app.config["SQLALCHEMY_DATABASE_URI"] = (
-       f"mysql+pymysql://root:{password}@localhost/xpensetrack"
-   )
-   ```
+#### 4. Configure Environment Variables
+Create a `.env` file in the project root with the following variables:
 
-5. **Run the application**
-   ```bash
-   python XpenseTrack.py
-   ```
+```env
+# Database Configuration
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_HOST=localhost
+DB_NAME=xpensetrack
 
-   The application will be available at `http://localhost:5000`
+# Flask Configuration
+SECRET_KEY=your_secret_key_here
+FLASK_ENV=development
+DEBUG=True
+```
+
+**Note**: Replace `your_mysql_password` with your actual MySQL password.
+
+#### 5. Set Up the Database
+- Ensure MySQL Server is running
+- The application will automatically create the database and tables on first run
+- No manual database creation is needed
+
+## Running the Project
+
+### Option 1: Using run.py (Recommended)
+```bash
+python run.py
+```
+
+The application will start on `http://localhost:5000` or `http://127.0.0.1:5000`
+
+### Option 2: Using Flask CLI
+```bash
+# Set Flask app
+set FLASK_APP=run.py      # Windows
+export FLASK_APP=run.py   # macOS/Linux
+
+# Run in development mode
+flask run
+```
+
+### Option 3: Direct Python Execution
+```bash
+python -c "from app import create_app; app = create_app('development'); app.run(debug=True)"
+```
+
+The application will display:
+```
+ * Running on http://127.0.0.1:5000
+ * Debug mode: on
+ * Debugger PIN: xxx-xxx-xxx
+```
+
+Open your browser and navigate to `http://localhost:5000` to access XpenseTrack.
 
 ## Usage
 
@@ -140,20 +224,47 @@ XpenseTrack/
 ## Database Schema
 
 ### user_info Table
-- `id`: Primary key
-- `name`: User's full name
-- `email`: Email address (unique)
-- `password`: Hashed password
-- `join_date`: Account creation date
+```sql
+CREATE TABLE user_info (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(80) NOT NULL,
+  email VARCHAR(200) UNIQUE NOT NULL,
+  password VARCHAR(200) NOT NULL,
+  profile_pic VARCHAR(255),
+  join_date DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-### Transaction Table
-- `id`: Primary key
-- `user_id`: Foreign key to user_info
+**Columns:**
+- `id`: Primary key (auto-incremented)
+- `name`: User's full name
+- `email`: Email address (unique, indexed)
+- `password`: Hashed password (bcrypt)
+- `profile_pic`: Optional path to profile picture
+- `join_date`: Account creation timestamp
+
+### transaction Table
+```sql
+CREATE TABLE transaction (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  date DATE NOT NULL,
+  description VARCHAR(255),
+  category VARCHAR(50),
+  amount DECIMAL(10, 2) NOT NULL,
+  type ENUM('expense', 'income') NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user_info(id) ON DELETE CASCADE
+);
+```
+
+**Columns:**
+- `id`: Primary key (auto-incremented)
+- `user_id`: Foreign key to user_info (cascade delete)
 - `date`: Transaction date
-- `description`: Transaction description
-- `category`: Transaction category
-- `amount`: Transaction amount
-- `type`: "expense" or "income"
+- `description`: Transaction description/notes
+- `category`: Category (e.g., "Food", "Transport", "Salary")
+- `amount`: Transaction amount (decimal with 2 decimal places)
+- `type`: Transaction type ("expense" or "income")
 
 ## Features Breakdown
 
@@ -177,11 +288,35 @@ XpenseTrack/
 
 ## Security Features
 
-- Passwords are hashed using Werkzeug security
-- User sessions are managed securely
-- Login required for protected routes
-- CSRF protection through Flask
-- User data isolation (users can only see their own data)
+### Implemented Security Measures
+- **Password Hashing**: Passwords are hashed using Werkzeug's `generate_password_hash()` and `check_password_hash()` with automatic salt generation
+- **CSRF Protection**: Flask-WTF CSRF protection on all POST/PUT/DELETE requests via hidden form tokens
+- **XSS Prevention**: User inputs sanitized using Bleach library with `clean()` function - all user-supplied content is stripped of HTML tags
+- **Session Management**: Secure session handling with Flask-Login, automatic session cookies
+- **User Isolation**: Users can only access and modify their own data
+- **Protected Routes**: @login_required decorators on all sensitive endpoints
+- **Input Validation**: Server-side validation on amount, date, and text fields
+- **Secure Database Queries**: SQLAlchemy ORM prevents SQL injection attacks
+- **Secure File Uploads**: Profile picture uploads restricted to allowed extensions (jpg, jpeg, png, gif, webp)
+
+### Example Security Implementation
+```python
+# Password hashing
+user.set_password("password123")  # Automatically hashed
+
+# CSRF token on forms
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+# XSS prevention
+from bleach import clean
+safe_text = sanitize_input(user_input)  # Strips HTML tags
+
+# Protected routes
+@login_required
+def dashboard():
+    # Only authenticated users can access
+    pass
+```
 
 ## Future Enhancements
 
@@ -199,19 +334,123 @@ Potential features for future versions:
 ## Troubleshooting
 
 ### Database Connection Issues
-- Ensure MySQL is running: `mysql --version`
-- Verify database credentials in `XpenseTrack.py`
-- Check if database `xpensetrack` exists
 
-### Import Errors
-- Reinstall dependencies: `pip install -r requirements.txt --force-reinstall`
-- Ensure virtual environment is activated
+**Error**: `pymysql.err.OperationalError: (1045, "Access denied for user 'root'@'localhost'")`
+
+**Solution**:
+- Verify MySQL is running: `mysql --version`
+- Check MySQL server status and start it if needed
+- Verify credentials in `.env` file match your MySQL installation
+- Test MySQL connection:
+  ```bash
+  mysql -u root -p -h localhost
+  ```
+
+**Error**: `pymysql.err.OperationalError: (1049, "Unknown database 'xpensetrack'")`
+
+**Solution**:
+- The application automatically creates the database on first run
+- Ensure you have permission to create databases
+- Manually create database if needed: `CREATE DATABASE xpensetrack;`
+
+### Missing Environment Variables
+
+**Error**: `KeyError` or `ValueError` related to database configuration
+
+**Solution**:
+- Verify `.env` file exists in the project root
+- Check all required variables are set (DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, SECRET_KEY)
+- Ensure no typos in variable names
+- Restart the application after creating/updating `.env`
+
+### Import and Dependency Errors
+
+**Error**: `ModuleNotFoundError: No module named 'flask'`
+
+**Solution**:
+- Ensure virtual environment is activated:
+  ```bash
+  # Windows
+  venv\Scripts\activate
+  # macOS/Linux
+  source venv/bin/activate
+  ```
+- Reinstall dependencies:
+  ```bash
+  pip install -r requirements.txt --force-reinstall
+  ```
 
 ### Port Already in Use
-- Flask uses port 5000 by default. If it's already in use, modify the port:
-  ```python
-  app.run(port=5001)
+
+**Error**: `Address already in use` or `Port 5000 in use`
+
+**Solution**:
+- Find and stop the process using port 5000:
+  ```bash
+  # Windows
+  netstat -ano | findstr :5000
+  taskkill /PID <PID> /F
+  
+  # macOS/Linux
+  lsof -ti:5000 | xargs kill -9
   ```
+- Or change the port in `run.py`:
+  ```python
+  if __name__ == "__main__":
+      app.run(debug=True, port=5001)  # Use port 5001
+  ```
+
+### CSRF Token Errors
+
+**Error**: `CSRF token is missing` or `Bad Request (400)`
+
+**Solution**:
+- Ensure all forms include the CSRF token:
+  ```html
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <!-- form fields -->
+  </form>
+  ```
+- Clear browser cookies and cache
+- Restart the Flask application
+
+### Database Schema Issues
+
+**Error**: `Unknown column 'user_info.profile_pic' in 'field list'`
+
+**Solution**:
+- The database tables are out of sync with models
+- Drop and recreate tables:
+  ```python
+  from app import create_app, db
+  app = create_app('development')
+  with app.app_context():
+      db.drop_all()
+      db.create_all()
+  ```
+- This will erase all data - use only for development
+
+### Blank Page or Redirect Loop
+
+**Error**: Pages not loading or continuous redirects
+
+**Solution**:
+- Check Flask debug output for errors
+- Clear browser cookies: `Settings > Clear Browsing Data`
+- Check logs in `logs/app.log` for detailed error messages
+- Ensure FLASK_ENV=development in `.env`
+- Verify all templates exist in `templates/` directory
+
+### Login Issues
+
+**Error**: "Invalid email or password" on correct credentials
+
+**Solution**:
+- Check email address case sensitivity (MySQL is case-insensitive by default)
+- Verify user exists: Check database directly
+- Clear session cookies and try again
+- Check `logs/app.log` for authentication errors
 
 ## Contributing
 

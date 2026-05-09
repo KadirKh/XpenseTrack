@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.sql import func
 from flask_login import (
     LoginManager,
@@ -14,13 +15,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "2a6abefd7fbb356ff02ac8da712e1685"
+app.secret_key = os.getenv("SECRET_KEY", "dev-key-change-in-production")
+csrf = CSRFProtect(app)
 
-password = quote_plus("Kadir@2006")
+# Database Configuration
+db_user = os.getenv("DB_USER", "root")
+db_password = quote_plus(os.getenv("DB_PASSWORD", ""))
+db_host = os.getenv("DB_HOST", "localhost")
+db_name = os.getenv("DB_NAME", "xpensetrack")
+
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://root:{password}@localhost/xpensetrack"
+    f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = "static/profile_pics"
@@ -41,6 +51,7 @@ class user_info(db.Model, UserMixin):
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    profile_pic = db.Column(db.String(255), default=None)
     join_date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
@@ -81,7 +92,7 @@ def signup():
 
         if password != repassword:
             flash("Passwords do not match!", "danger")
-            return redirect(url_for("singup"))
+            return redirect(url_for("signup"))
 
         hashed_password = generate_password_hash(password)
         new_user = user_info(name=name, email=email, password=hashed_password)
@@ -193,6 +204,12 @@ def add_expense():
 
     try:
         amount = float(amount)
+        if amount <= 0:
+            flash("Amount must be greater than zero!", "danger")
+            return redirect(url_for("dashboard"))
+        if amount > 999999999:
+            flash("Amount exceeds maximum limit!", "danger")
+            return redirect(url_for("dashboard"))
     except ValueError:
         flash("Invalid amount entered!", "danger")
         return redirect(url_for("dashboard"))
@@ -215,7 +232,7 @@ def add_expense():
     db.session.add(new_expense)
     db.session.commit()
 
-    # flash("Expense added successfully!", "success")
+    flash("Expense added successfully!", "success")
     return redirect(url_for("dashboard"))
 
 
@@ -232,6 +249,12 @@ def add_income():
 
     try:
         amount = float(amount)
+        if amount <= 0:
+            flash("Amount must be greater than zero!", "danger")
+            return redirect(url_for("dashboard"))
+        if amount > 999999999:
+            flash("Amount exceeds maximum limit!", "danger")
+            return redirect(url_for("dashboard"))
     except ValueError:
         flash("Invalid amount!", "danger")
         return redirect(url_for("dashboard"))
@@ -247,7 +270,7 @@ def add_income():
     db.session.add(new_income)
     db.session.commit()
 
-    # flash("Income added successfully!", "success")
+    flash("Income added successfully!", "success")
     return redirect(url_for("dashboard"))
 
 
@@ -277,6 +300,12 @@ def edit_expense(id):
 
         try:
             expense.amount = float(amount)
+            if expense.amount <= 0:
+                flash("Amount must be greater than zero!", "danger")
+                return redirect(url_for("edit_expense", id=id))
+            if expense.amount > 999999999:
+                flash("Amount exceeds maximum limit!", "danger")
+                return redirect(url_for("edit_expense", id=id))
         except ValueError:
             flash("Invalid amount entered!", "danger")
             return redirect(url_for("edit_expense", id=id))
